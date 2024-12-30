@@ -20,7 +20,9 @@ class BookingTransactionResource extends Resource
 {
     protected static ?string $model = BookingTransaction::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
+
+    protected static ?string $navigationGroup = 'Booking Management';
 
     public static function form(Form $form): Form
     {
@@ -98,6 +100,7 @@ class BookingTransactionResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
 
                 Tables\Actions\Action::make('approve')
@@ -113,21 +116,21 @@ class BookingTransactionResource extends Resource
                             ->body('The booking has been successfuly approved.')
                             ->send();
 
-                            $sid = getenv("TWILIO_ACCOUNT_SID");
-                            $token = getenv("TWILIO_AUTH_TOKEN");
-                            $twilio = new Client($sid, $token);
+        //                     $sid = getenv("TWILIO_ACCOUNT_SID");
+        //                     $token = getenv("TWILIO_AUTH_TOKEN");
+        //                     $twilio = new Client($sid, $token);
 
-                            //create the message with line breaks
-                            $messageBody = "Hi {$record->name},  pemesanan Anda dengan kode TRX ID: {$record->booking_trx_id} sudah terbayar penuh.\n\n";
-                            $messageBody .= "Silahkan datang kepada lokasi kantor {$record->officeSpace->name} untuk mulai menggunakan ruangan kerja tersebut.\n\n";
-                            $messageBody .= "Jika Anda memiliki pertanyaan lebih lanjut, silahkan hubungi kami.";
+        //                     //create the message with line breaks
+        //                     $messageBody = "Hi {$record->name},  pemesanan Anda dengan kode TRX ID: {$record->booking_trx_id} sudah terbayar penuh.\n\n";
+        //                     $messageBody .= "Silahkan datang kepada lokasi kantor {$record->officeSpace->name} untuk mulai menggunakan ruangan kerja tersebut.\n\n";
+        //                     $messageBody .= "Jika Anda memiliki pertanyaan lebih lanjut, silahkan hubungi kami.";
 
-                            $message = $twilio->messages
-        ->create("whatsapp:+{$record->phone_number}",
-            array(
-                "from" => "whatsapp:+14155238886",
-                "body" => $messageBody
-            ));
+        //                     $message = $twilio->messages
+        // ->create("whatsapp:+{$record->phone_number}",
+        //     array(
+        //         "from" => "whatsapp:+14155238886",
+        //         "body" => $messageBody
+        //     ));
 
 
                     })

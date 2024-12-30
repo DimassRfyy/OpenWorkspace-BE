@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OfficeSpaceResource\Pages;
 use App\Filament\Resources\OfficeSpaceResource\RelationManagers;
 use App\Models\OfficeSpace;
+use Filament\Forms\Components\Wizard;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -21,82 +22,110 @@ class OfficeSpaceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
+    protected static ?string $navigationGroup = 'Places Management';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                ->required()
-                ->maxLength(255),
+                Wizard::make([
+                    Wizard\Step::make('Main Information')
+                        ->icon('heroicon-m-information-circle')
+                        ->completedIcon('heroicon-m-check')
+                        ->description('Information of the office space.')
+                        ->columns(2)
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
 
-                Forms\Components\TextInput::make('address')
-                ->required()
-                ->maxLength(255),
+                            Forms\Components\TextInput::make('address')
+                            ->required()
+                            ->maxLength(255),
 
-                Forms\Components\FileUpload::make('thumbnail')
-                ->image()
-                ->disk('public')
-                ->directory('office-spaces')
-                ->required(),
+                            Forms\Components\FileUpload::make('thumbnail')
+                            ->image()
+                            ->disk('public')
+                            ->directory('office-spaces')
+                            ->required(),
 
-                Forms\Components\TextArea::make('about')
-                ->required()
-                ->rows(10)
-                ->cols(20),
+                            Forms\Components\TextArea::make('about')
+                            ->required()
+                            ->rows(10)
+                            ->cols(20),
 
-                Forms\Components\Repeater::make('photos')
-                ->relationship('photos')
-                ->schema([
-                    Forms\Components\FileUpload::make('photo')
-                    ->image()
-                    ->disk('public')
-                    ->directory('office-spaces-photos')
-                    ->required(),
-                ]),
+                            Forms\Components\Select::make('city_id')
+                            ->relationship('city', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
-                Forms\Components\Repeater::make('benefits')
-                ->relationship('benefits')
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                        ->required(),
-                ]),
+                            Forms\Components\TextInput::make('price')
+                            ->required()
+                            ->numeric()
+                            ->prefix('IDR'),
 
-                Forms\Components\Select::make('city_id')
-                ->relationship('city', 'name')
-                ->searchable()
-                ->preload()
-                ->required(),
+                            Forms\Components\TextInput::make('duration')
+                            ->required()
+                            ->numeric()
+                            ->prefix('Days'),
 
-                Forms\Components\TextInput::make('price')
-                ->required()
-                ->numeric()
-                ->prefix('IDR'),
+                            Forms\Components\Select::make('is_open')
+                            ->options([
+                                true => 'Open',
+                                false => 'Not Open',
+                            ])
+                            ->required(),
 
-                Forms\Components\TextInput::make('duration')
-                ->required()
-                ->numeric()
-                ->prefix('Days'),
-
-                Forms\Components\Select::make('is_open')
-                ->options([
-                    true => 'Open',
-                    false => 'Not Open',
+                            Forms\Components\Select::make('is_full_booked')
+                            ->options([
+                                true => 'Not Available',
+                                false => 'Available',
+                            ])
+                            ->required(),
+                            
+                            Forms\Components\Select::make('is_popular')
+                            ->options([
+                                true => 'Popular',
+                                false => 'Not Popular',
+                            ])
+                            ->required(),
+                        ]),
+                    Wizard\Step::make('Benefits')
+                        ->icon('heroicon-m-arrow-trending-up')
+                        ->completedIcon('heroicon-m-check')
+                        ->description('Benefits of the office space.')
+                        ->schema([
+                            Forms\Components\Repeater::make('benefits')
+                            ->grid(2)
+                            ->defaultItems(4)
+                            ->relationship('benefits')
+                            ->schema([
+                            Forms\Components\TextInput::make('name')
+                            ->required(),
+                        ]),
+                        ]),
+                    Wizard\Step::make('Photos')
+                        ->icon('heroicon-m-photo')
+                        ->completedIcon('heroicon-m-check')
+                        ->description('Photos of the office space.')
+                        ->schema([
+                            Forms\Components\Repeater::make('photos')
+                            ->grid(2)
+                            ->defaultItems(4)
+                            ->relationship('photos')
+                            ->schema([
+                            Forms\Components\FileUpload::make('photo')
+                            ->image()
+                            ->disk('public')
+                            ->directory('office-spaces-photos')
+                            ->required(),
+                        ]),
+                        ]),
                 ])
-                ->required(),
-
-                Forms\Components\Select::make('is_full_booked')
-                ->options([
-                    true => 'Not Available',
-                    false => 'Available',
-                ])
-                ->required(),
-                
-                Forms\Components\Select::make('is_popular')
-                ->options([
-                    true => 'Popular',
-                    false => 'Not Popular',
-                ])
-                ->required(),
+                ->columnSpan('full')
+                ->skippable()
+                ->columns(1),
             ]);
     }
 
